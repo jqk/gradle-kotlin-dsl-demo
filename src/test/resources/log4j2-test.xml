@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--https://logging.apache.org/log4j/2.x/manual/layouts.html-->
+<configuration status="WARN" monitorInterval="30">
+    <properties>
+        <property name="LOG_HOME">logs</property>
+        <property name="LOG_FILE_NAME">app.log</property>
+        <property name="LOG_ERROR_FILE_NAME">error.log</property>
+        <!--按年月日分目录，按大小分文件-->
+        <property name="ROLLING_FILE_PATTERN">${date:yyyy-MM-dd}/%d{yyyy-MM-dd_HH}-%i.log</property>
+        <property name="ROLLING_FILE_GZ_PATTERN">${date:yyyy-MM-dd}/%d{yyyy-MM-dd_HH}-%i.log.gz</property>
+        <property name="LAYOUT_SIMPLE">%d{HH:mm:ss.SSS} %highlight{%level{length=1} - %msg}%n</property>
+        <property name="LAYOUT_DETAIL">%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-55.55c{9.} [%-40.40thread] - %msg%n</property>
+    </properties>
+    <appenders>
+        <!--控制台-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${LAYOUT_SIMPLE}"/>
+        </Console>
+        <!--用于存储严重错误的日志信息。便于定位，然后再从普通日志中查找定位。-->
+        <RollingFile name="RollingError" fileName="${LOG_HOME}/${LOG_ERROR_FILE_NAME}"
+                     filePattern="${LOG_HOME}/${ROLLING_FILE_PATTERN}">
+            <!--以下Filter中的level与Logger中的重叠，所以如无必要，不必使用。-->
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${LAYOUT_DETAIL}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="99"><!--最多99个文件-->
+                <Delete basePath="${LOG_HOME}" maxDepth="2">
+                    <IfLastModified age="100d"/><!--保留100天-->
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        <!--普通日志，注重性能-->
+        <RollingRandomAccessFile name="RollingFile" fileName="${LOG_HOME}/${LOG_FILE_NAME}"
+                                 filePattern="${LOG_HOME}/${ROLLING_FILE_PATTERN}">
+            <!--<ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>-->
+            <PatternLayout pattern="${LAYOUT_DETAIL}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="99">
+                <Delete basePath="${LOG_HOME}" maxDepth="2">
+                    <IfLastModified age="100d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+    </appenders>
+    <loggers>
+        <!--定制模式：additivity开启的话，由于这个logger也是满足root的，所以会被打印两遍。
+        通过定义类名（name），可以过滤不想输出的日志，例如netty中的debug信息。
+        名称可以是具体类名，将只接收该类的日志；也可以是命名空间，如下例，
+        所有io.netty下及其子空间下的类的日志输出将转由该logger处理，从而不在正式日志中出现。-->
+        <logger name="io.netty" level="off" additivity="false">
+            <appender-ref ref="RollingError"/>
+        </logger>
+        <!--过滤阿里巴巴druid连接池的日志输出。-->
+        <logger name="com.alibaba" level="off" additivity="false">
+            <appender-ref ref="RollingError"/>
+        </logger>
+<!--        <logger name="com.yxy.common" level="off" additivity="false">-->
+<!--            <appender-ref ref="RollingFile"/>-->
+<!--            <appender-ref ref="Console"/>-->
+<!--        </logger>-->
+        <logger name="com.yxy.timesync.server.TimeServerDbReporter" level="off" additivity="false">
+            <appender-ref ref="RollingFile"/>
+            <appender-ref ref="Console"/>
+        </logger>
+        <!--过滤Quartz的日志输出。-->
+        <logger name="org.quartz" level="info" additivity="true">
+            <appender-ref ref="RollingError"/>
+        </logger>
+        <!--过滤Nutz的日志输出。-->
+        <logger name="org.nutz" level="info" additivity="true">
+            <appender-ref ref="RollingError"/>
+        </logger>
+        <root level="debug">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFile"/>
+            <appender-ref ref="RollingError"/>
+        </root>
+    </loggers>
+</configuration>

@@ -30,6 +30,9 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.apache.logging.log4j", "log4j-api", log4j2Version)
 
+    implementation(fileTree(mapOf("dir" to "../libs", "include" to listOf("*.jar"))))
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+
     compileOnly("org.jetbrains", "annotations", "19.0.0")
 
     runtimeOnly("org.apache.logging.log4j", "log4j-core", log4j2Version)

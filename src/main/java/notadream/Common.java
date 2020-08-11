@@ -1,4 +1,4 @@
-package com.yxy;
+package notadream;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -13,6 +13,6 @@ public final class Common {
 
     @NotNull
     public static String greeting() {
-        return "Hello gradle kotlin dsl!";
+        return "Hello Gradle Kotlin DSL!";
     }
 }

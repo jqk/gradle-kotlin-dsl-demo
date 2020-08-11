@@ -10,10 +10,10 @@ group = "com.yxy"
 version = "1.0.0"
 
 // change fields below for real project.
-val implementationVendor = "The YXY company"
-val implementationUrl = "http://www.yunxingyu.com"
-val implementationTitle = "Demo for gradle kotlin dsl"
-val mainClass = "com.yxy.MainKt"
+val implementationVendor = "The Not a Dream Co.,Ltd"
+val implementationUrl = "http://www.notadream.com"
+val implementationTitle = "Demo for Gradle Kotlin DSL"
+val mainClass = "notadream.MainKt"
 
 repositories {
     maven("https://maven.aliyun.com/nexus/content/groups/public/")
@@ -127,7 +127,7 @@ val fatJar by tasks.registering(Jar::class) {
     with(manifest) {
         attributes["Class-Path"] = ". "
         attributes["Main-Class"] = mainClass
-        attributes["Implementation-Title"] = "$implementationTitle, $archiveAppendix"
+        attributes["Implementation-Title"] = "$implementationTitle, ${archiveAppendix.get()}"
         attributes["Package-Method"] = ""
         attributes["Implementation-Vendor"] = implementationVendor
         attributes["Implementation-URL"] = implementationUrl
@@ -147,7 +147,7 @@ val fatJar by tasks.registering(Jar::class) {
 }
 
 /**
- * build a fat jar.
+ * build a thin jar.
  */
 val thinJar by tasks.registering(Jar::class) {
     println("thinJar is called...............")
@@ -160,7 +160,7 @@ val thinJar by tasks.registering(Jar::class) {
     with(manifest) {
         attributes["Class-Path"] = cp
         attributes["Main-Class"] = mainClass
-        attributes["Implementation-Title"] = "$implementationTitle, $archiveAppendix"
+        attributes["Implementation-Title"] = "$implementationTitle, ${archiveAppendix.get()}"
         attributes["Package-Method"] = ""
         attributes["Implementation-Vendor"] = implementationVendor
         attributes["Implementation-URL"] = implementationUrl

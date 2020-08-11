@@ -6,7 +6,7 @@ plugins {
     kotlin("jvm") version "1.3.72"
 }
 
-group = "com.yxy"
+group = "notadream"
 version = "1.0.0"
 
 // change fields below for real project.

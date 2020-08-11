@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
  * @author Jason
  */
 public final class Common {
+    private Common() {
+    }
+
     @NotNull
     public static String greeting() {
         return "Hello gradle kotlin dsl!";

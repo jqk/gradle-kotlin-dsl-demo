@@ -16,9 +16,9 @@ val implementationTitle = "Demo for gradle kotlin dsl"
 val mainClass = "com.yxy.MainKt"
 
 repositories {
-    maven("http://maven.aliyun.com/nexus/content/groups/public/")
+    maven("https://maven.aliyun.com/nexus/content/groups/public/")
     maven("https://repo.spring.io/libs-snapshot/")
-    maven("http://uk.maven.org/maven2/")
+    maven("https://uk.maven.org/maven2/")
     mavenCentral()
     jcenter()
 }
@@ -63,13 +63,18 @@ tasks {
     javadoc {
         options.encoding = "UTF-8"
     }
+    // customized build task is not required. Remove it if you don't like it.
     build {
-        // redefine build task fun thinJar first.
+        println("build is called.................")
+
+        // redefine build task: thinJar first.
         dependsOn(thinJar)
 
         doLast {
-            // clean compiled jar file without appendix.
+            println("removing archiveFile............")
+
             // thinJar & fatJar set different archive name with appendix.
+            // So delete compiled jar file without appendix. You can run 'jar' to see what happened.
             val f = jar.get().archiveFile.get().asFile
             if (f.exists()) {
                 f.delete()
@@ -95,6 +100,11 @@ tasks {
  * copy all runtime dependencies to build path for thin jar.
  */
 val copyDependencies by tasks.registering(Copy::class) {
+    /*
+    * same effect for sentence below, but the second one is more coding friendly.
+    * In fact, configurations.runtimeClasspath.get() is configurations["runtimeClasspath"].
+    */
+    // from(configurations["runtimeClasspath"])
     from(configurations.runtimeClasspath)
     into(jarPath)
 }
@@ -123,7 +133,7 @@ val fatJar by tasks.registering(Jar::class) {
         attributes["Implementation-URL"] = implementationUrl
     }
 
-    /* 以下两种方式效果相同。 */
+    /* Same effect for these tow: */
     //    from({
     //        configurations["runtimeClasspath"].map { file ->
     //            if (file.isDirectory) file else zipTree(file)
@@ -134,14 +144,16 @@ val fatJar by tasks.registering(Jar::class) {
     }
 
     with(tasks["jar"] as CopySpec)
-    exclude("*.*")
 }
 
 /**
  * build a fat jar.
  */
 val thinJar by tasks.registering(Jar::class) {
+    println("thinJar is called...............")
+
     dependsOn(copyDependencies, copyResources)
+
     archiveAppendix.set("core")
     val cp = configurations["runtimeClasspath"].joinToString(" ") { it.name } + " ."
 
@@ -154,6 +166,5 @@ val thinJar by tasks.registering(Jar::class) {
         attributes["Implementation-URL"] = implementationUrl
     }
 
-    with(tasks["jar"] as CopySpec)
-    exclude("*.*")
+    with(tasks.jar.get() as CopySpec)
 }

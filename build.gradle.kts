@@ -33,11 +33,11 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "../libs", "include" to listOf("*.jar"))))
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
-    compileOnly("org.jetbrains", "annotations", "19.0.0")
+    compileOnly("org.jetbrains", "annotations", "20.0.0")
 
     runtimeOnly("org.apache.logging.log4j", "log4j-core", log4j2Version)
 
-    testImplementation("org.testng", "testng", "7.1.0")
+    testImplementation("org.testng", "testng", "7.3.0")
 }
 
 configure<JavaPluginConvention> {

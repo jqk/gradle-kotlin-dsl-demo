@@ -9,7 +9,7 @@ plugins {
 group = "notadream"
 version = "1.0.0"
 
-// change fields below for real project.
+// change values for real project.
 val implementationVendor = "The Not a Dream Co.,Ltd"
 val implementationUrl = "http://www.notadream.com"
 val implementationTitle = "Demo for Gradle Kotlin DSL"
@@ -23,7 +23,7 @@ repositories {
     jcenter()
 }
 
-// for dependencies version if use multiple times.
+// for dependencies version when it is used multiple times.
 val log4j2Version = "2.13.3"
 
 dependencies {
@@ -67,11 +67,11 @@ tasks {
     build {
         println("build is called.................")
 
-        // redefine build task: thinJar first.
-        dependsOn(thinJar)
+        // redefine build task: buildThinJar first.
+        dependsOn(buildThinJar)
 
         doLast {
-            println("removing archiveFile............")
+            println("removing default archiveFile............")
 
             // thinJar & fatJar set different archive name with appendix.
             // So delete compiled jar file without appendix. You can run 'jar' to see what happened.
@@ -102,7 +102,7 @@ tasks {
 val copyDependencies by tasks.registering(Copy::class) {
     /*
     * same effect for sentence below, but the second one is more coding friendly.
-    * In fact, configurations.runtimeClasspath.get() is configurations["runtimeClasspath"].
+    * In fact, configurations.runtimeClasspath.get() is the configurations["runtimeClasspath"].
     */
     // from(configurations["runtimeClasspath"])
     from(configurations.runtimeClasspath)
@@ -113,6 +113,7 @@ val copyDependencies by tasks.registering(Copy::class) {
  * copy resources to build path for thin jar and fat jar.
  */
 val copyResources by tasks.registering(Copy::class) {
+    // no idea how to use variable but not string.
     from("$projectDir/src/main/resources")
     into(jarPath)
 }
@@ -120,7 +121,7 @@ val copyResources by tasks.registering(Copy::class) {
 /**
  * build a fat jar.
  */
-val fatJar by tasks.registering(Jar::class) {
+val buildFatJar by tasks.registering(Jar::class) {
     dependsOn(copyResources)
     archiveAppendix.set("all")
 
@@ -133,7 +134,7 @@ val fatJar by tasks.registering(Jar::class) {
         attributes["Implementation-URL"] = implementationUrl
     }
 
-    /* Same effect for these tow: */
+    /* compress all dependencies to jar file. Same effect for these tow below: */
     //    from({
     //        configurations["runtimeClasspath"].map { file ->
     //            if (file.isDirectory) file else zipTree(file)
@@ -143,14 +144,15 @@ val fatJar by tasks.registering(Jar::class) {
         from(zipTree(file.absoluteFile))
     }
 
+    // see difference with buildThinJar.
     with(tasks["jar"] as CopySpec)
 }
 
 /**
  * build a thin jar.
  */
-val thinJar by tasks.registering(Jar::class) {
-    println("thinJar is called...............")
+val buildThinJar by tasks.registering(Jar::class) {
+    println("buildThinJar is called...............")
 
     dependsOn(copyDependencies, copyResources)
 
@@ -166,5 +168,6 @@ val thinJar by tasks.registering(Jar::class) {
         attributes["Implementation-URL"] = implementationUrl
     }
 
+    // see difference with buildFatJar.
     with(tasks.jar.get() as CopySpec)
 }

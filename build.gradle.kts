@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     java
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.10"
 }
 
 group = "notadream"
@@ -33,7 +33,7 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "../libs", "include" to listOf("*.jar"))))
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
-    compileOnly("org.jetbrains", "annotations", "20.0.0")
+    compileOnly("org.jetbrains", "annotations", "20.1.0")
 
     runtimeOnly("org.apache.logging.log4j", "log4j-core", log4j2Version)
 
@@ -73,7 +73,7 @@ tasks {
         doLast {
             println("removing default archiveFile............")
 
-            // thinJar & fatJar set different archive name with appendix.
+            // buildThinJar & buildFatJar set different archive name with appendix.
             // So delete compiled jar file without appendix. You can run 'jar' to see what happened.
             val f = jar.get().archiveFile.get().asFile
             if (f.exists()) {
